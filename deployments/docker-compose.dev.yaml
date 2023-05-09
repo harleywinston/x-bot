@@ -1,0 +1,18 @@
+version: '3'
+services:
+  bot:
+    image: "hub.hamdocker.ir/cosmtrek/air"
+    container_name: x-bot
+    restart: always
+    working_dir: "/go/src/github/harleywinston/x-bot"
+    env_file:
+      - "./.dev.env"
+    volumes:
+      - "/home/harley/go/src/github.com/harleywinston/x-bot:/go/src/github/harleywinston/x-bot"
+    networks:
+      - x
+
+networks:
+  x:
+    name: x
+    external: true
