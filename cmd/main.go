@@ -34,7 +34,8 @@ func main() {
 	updates := bot.GetUpdatesChan(updateConfig)
 
 	for update := range updates {
-		err := pkg.HandleMessage(bot, update)
+		messageHandler := pkg.MessageHandler{}
+		err := messageHandler.HandleMessage(bot, update)
 		if err == nil {
 			continue
 		}
