@@ -19,4 +19,11 @@ var (
 	DEFAULT_CALLBACK_MESSAGE = "default callback message"
 
 	BUY_CONVERSATION_USERNAME_MESSAGE = "username:"
+	BUY_CONVERSATION_EMAIL_MESSAGE    = "email:"
+	CONFIRM_BUY_CONVERSATION_MESSAGE  = `
+	 username: %s
+	email: %s
+	`
+	CONFIRM_BUY_CONVERSATION_KEYBOARD = "confirm"
+	EDIT_BUY_CONVERSATION_KEYBOARD    = "edit"
 )
