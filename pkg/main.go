@@ -32,7 +32,7 @@ func (h *MessageHandler) handleCommands(update tgbotapi.Update) (tgbotapi.Messag
 			return tgbotapi.MessageConfig{}, err
 		}
 	default:
-		res = tgbotapi.NewMessage(update.Message.Chat.ID, consts.DEFAULT_COMMAND_MESSAGE)
+		return tgbotapi.MessageConfig{}, consts.UPDATE_MESSAGE_ERROR
 	}
 	return res, nil
 }
@@ -45,7 +45,7 @@ func (h *MessageHandler) handleCallbackQuery(
 
 	switch update.CallbackQuery.Data {
 	case consts.START_BUY_KEYBOARD:
-		res, err = h.buyService.HandleBuyConversation(update)
+		res, err = h.buyService.StartBuy(update)
 		if err != nil {
 			return tgbotapi.MessageConfig{}, err
 		}
@@ -55,7 +55,7 @@ func (h *MessageHandler) handleCallbackQuery(
 			return tgbotapi.MessageConfig{}, err
 		}
 	default:
-		res = tgbotapi.NewMessage(update.Message.Chat.ID, consts.DEFAULT_CALLBACK_MESSAGE)
+		return tgbotapi.MessageConfig{}, consts.UPDATE_MESSAGE_ERROR
 	}
 	return res, nil
 }
@@ -67,6 +67,11 @@ func (h *MessageHandler) HandleMessage(bot *tgbotapi.BotAPI, update tgbotapi.Upd
 	if update.Message != nil {
 		if update.Message.IsCommand() {
 			res, err = h.handleCommands(update)
+			if err != nil {
+				return err
+			}
+		} else {
+			res, err = h.buyService.HandleBuyConversation(update)
 			if err != nil {
 				return err
 			}

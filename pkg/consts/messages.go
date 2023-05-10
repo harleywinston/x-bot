@@ -12,8 +12,11 @@ var (
 	DEFAULT_COMMAND_MESSAGE = "default command"
 
 	START_BUY_KEYBOARD  = "start"
+	START_BUY_MESSAGE   = "start buy"
 	CANCEL_BUY_KEYBOARD = "cancle"
 	CANCEL_BUY_MESSAGE  = "cancel succeed"
 
 	DEFAULT_CALLBACK_MESSAGE = "default callback message"
+
+	BUY_CONVERSATION_USERNAME_MESSAGE = "username:"
 )
