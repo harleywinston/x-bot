@@ -40,7 +40,14 @@ func main() {
 			continue
 		}
 
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, err.Error())
+		var chatID int64
+		if update.Message != nil {
+			chatID = update.Message.Chat.ID
+		}
+		if update.CallbackQuery != nil {
+			chatID = update.CallbackQuery.Message.Chat.ID
+		}
+		msg := tgbotapi.NewMessage(chatID, err.Error())
 		if _, err := bot.Send(msg); err != nil {
 			log.Println(err.Error())
 		}
