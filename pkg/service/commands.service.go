@@ -9,12 +9,12 @@ import (
 type CommandHandlers struct{}
 
 func (h *CommandHandlers) HandleHelp(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
-	res := tgbotapi.NewMessage(update.Message.Chat.ID, consts.HELP_COMMAND)
+	res := tgbotapi.NewMessage(update.Message.Chat.ID, consts.HELP_COMMAND_MESSAGE)
 	return res, nil
 }
 
 func (h *CommandHandlers) HandleBuy(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
-	res := tgbotapi.NewMessage(update.Message.Chat.ID, consts.BUY_COMMAND)
+	res := tgbotapi.NewMessage(update.Message.Chat.ID, consts.BUY_COMMAND_MESSAGE)
 	res.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData(
@@ -33,6 +33,6 @@ func (h *CommandHandlers) HandleBuy(update tgbotapi.Update) (tgbotapi.MessageCon
 }
 
 func (h *CommandHandlers) HandleStatus(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
-	res := tgbotapi.NewMessage(update.Message.Chat.ID, consts.STATUS_COMMAND)
+	res := tgbotapi.NewMessage(update.Message.Chat.ID, consts.STATUS_COMMAND_MESSAGE)
 	return res, nil
 }

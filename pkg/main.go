@@ -8,30 +8,31 @@ import (
 )
 
 type MessageHandler struct {
-	commands service.CommandHandlers
+	commands   service.CommandHandlers
+	buyService service.BuyService
 }
 
 func (h *MessageHandler) handleCommands(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
 	var res tgbotapi.MessageConfig
 	var err error
 	switch update.Message.Command() {
-	case "help":
+	case consts.HELP_COMMAND:
 		res, err = h.commands.HandleHelp(update)
 		if err != nil {
 			return tgbotapi.MessageConfig{}, err
 		}
-	case "buy":
+	case consts.BUY_COMMAND:
 		res, err = h.commands.HandleBuy(update)
 		if err != nil {
 			return tgbotapi.MessageConfig{}, err
 		}
-	case "status":
+	case consts.STATUS_COMMAND:
 		res, err = h.commands.HandleStatus(update)
 		if err != nil {
 			return tgbotapi.MessageConfig{}, err
 		}
 	default:
-		res = tgbotapi.NewMessage(update.Message.Chat.ID, consts.DEFAULT_COMMAND)
+		res = tgbotapi.NewMessage(update.Message.Chat.ID, consts.DEFAULT_COMMAND_MESSAGE)
 	}
 	return res, nil
 }
@@ -41,24 +42,43 @@ func (h *MessageHandler) handleCallbackQuery(
 ) (tgbotapi.MessageConfig, error) {
 	var res tgbotapi.MessageConfig
 	var err error
-	return res, err
+
+	switch update.CallbackQuery.Data {
+	case consts.START_BUY_KEYBOARD:
+		res, err = h.buyService.HandleBuyConversation(update)
+		if err != nil {
+			return tgbotapi.MessageConfig{}, err
+		}
+	case consts.CANCEL_BUY_KEYBOARD:
+		res, err = h.buyService.CancelBuy(update)
+		if err != nil {
+			return tgbotapi.MessageConfig{}, err
+		}
+	default:
+		res = tgbotapi.NewMessage(update.Message.Chat.ID, consts.DEFAULT_CALLBACK_MESSAGE)
+	}
+	return res, nil
 }
 
 func (h *MessageHandler) HandleMessage(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 	var res tgbotapi.MessageConfig
 	var err error
-	if update.Message == nil {
-		return consts.UPDATE_MESSAGE_ERROR
-	}
 
-	if update.Message.IsCommand() {
-		res, err = h.handleCommands(update)
-		if err != nil {
-			return err
+	if update.Message != nil {
+		if update.Message.IsCommand() {
+			res, err = h.handleCommands(update)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
 	if update.CallbackQuery != nil {
+		callback := tgbotapi.NewCallback(update.CallbackQuery.ID, update.CallbackQuery.Data)
+		if _, err := bot.Request(callback); err != nil {
+			return err
+		}
+
 		res, err = h.handleCallbackQuery(update)
 		if err != nil {
 			return err
