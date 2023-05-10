@@ -15,6 +15,20 @@ func (h *CommandHandlers) HandleHelp(update tgbotapi.Update) (tgbotapi.MessageCo
 
 func (h *CommandHandlers) HandleBuy(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
 	res := tgbotapi.NewMessage(update.Message.Chat.ID, consts.BUY_COMMAND)
+	res.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonData(
+				consts.START_BUY_KEYBOARD,
+				consts.START_BUY_KEYBOARD,
+			),
+		),
+		tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonData(
+				consts.CANCEL_BUY_KEYBOARD,
+				consts.CANCEL_BUY_KEYBOARD,
+			),
+		),
+	)
 	return res, nil
 }
 

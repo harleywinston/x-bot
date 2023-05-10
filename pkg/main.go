@@ -11,7 +11,7 @@ type MessageHandler struct {
 	commands service.CommandHandlers
 }
 
-func (h *MessageHandler) HandleCommands(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
+func (h *MessageHandler) handleCommands(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
 	var res tgbotapi.MessageConfig
 	var err error
 	switch update.Message.Command() {
@@ -36,6 +36,14 @@ func (h *MessageHandler) HandleCommands(update tgbotapi.Update) (tgbotapi.Messag
 	return res, nil
 }
 
+func (h *MessageHandler) handleCallbackQuery(
+	update tgbotapi.Update,
+) (tgbotapi.MessageConfig, error) {
+	var res tgbotapi.MessageConfig
+	var err error
+	return res, err
+}
+
 func (h *MessageHandler) HandleMessage(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 	var res tgbotapi.MessageConfig
 	var err error
@@ -44,7 +52,14 @@ func (h *MessageHandler) HandleMessage(bot *tgbotapi.BotAPI, update tgbotapi.Upd
 	}
 
 	if update.Message.IsCommand() {
-		res, err = h.HandleCommands(update)
+		res, err = h.handleCommands(update)
+		if err != nil {
+			return err
+		}
+	}
+
+	if update.CallbackQuery != nil {
+		res, err = h.handleCallbackQuery(update)
 		if err != nil {
 			return err
 		}
