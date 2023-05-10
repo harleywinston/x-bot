@@ -103,3 +103,31 @@ func (s *BuyService) CancelBuy(update tgbotapi.Update) (tgbotapi.MessageConfig, 
 	delete(buyConversations, chatID)
 	return res, nil
 }
+
+func (s *BuyService) ProceedPayment(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
+	var res tgbotapi.MessageConfig
+	chatID := update.CallbackQuery.Message.Chat.ID
+
+	res = tgbotapi.NewMessage(chatID, "proceed payment")
+
+	return res, nil
+}
+
+func (s *BuyService) EditBuyConversation(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
+	var res tgbotapi.MessageConfig
+	var err error
+	chatID := update.CallbackQuery.Message.Chat.ID
+
+	_, err = s.CancelBuy(update)
+	if err != nil {
+		return tgbotapi.MessageConfig{}, err
+	}
+	_, err = s.StartBuy(update)
+	if err != nil {
+		return tgbotapi.MessageConfig{}, err
+	}
+
+	res = tgbotapi.NewMessage(chatID, consts.EDIT_BUY_CONVERSATIN_MESSAGE)
+
+	return res, nil
+}

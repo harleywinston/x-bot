@@ -54,6 +54,16 @@ func (h *MessageHandler) handleCallbackQuery(
 		if err != nil {
 			return tgbotapi.MessageConfig{}, err
 		}
+	case consts.CONFIRM_BUY_CONVERSATION_KEYBOARD:
+		res, err = h.buyService.ProceedPayment(update)
+		if err != nil {
+			return tgbotapi.MessageConfig{}, err
+		}
+	case consts.EDIT_BUY_CONVERSATION_KEYBOARD:
+		res, err = h.buyService.EditBuyConversation(update)
+		if err != nil {
+			return tgbotapi.MessageConfig{}, err
+		}
 	default:
 		return tgbotapi.MessageConfig{}, consts.UPDATE_MESSAGE_ERROR
 	}

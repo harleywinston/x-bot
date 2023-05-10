@@ -26,4 +26,5 @@ var (
 	`
 	CONFIRM_BUY_CONVERSATION_KEYBOARD = "confirm"
 	EDIT_BUY_CONVERSATION_KEYBOARD    = "edit"
+	EDIT_BUY_CONVERSATIN_MESSAGE      = "edit conversation"
 )
