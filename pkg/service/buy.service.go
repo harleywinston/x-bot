@@ -6,6 +6,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 	"github.com/harleywinston/x-bot/pkg/consts"
+	"github.com/harleywinston/x-bot/pkg/models"
 )
 
 type BuyService struct{}
@@ -108,7 +109,31 @@ func (s *BuyService) ProceedPayment(update tgbotapi.Update) (tgbotapi.MessageCon
 	var res tgbotapi.MessageConfig
 	chatID := update.CallbackQuery.Message.Chat.ID
 
+	if _, exists := buyConversations[chatID]; !exists {
+		return tgbotapi.MessageConfig{}, consts.BUY_IS_NOT_STARTED_ERROR
+	}
+	user := models.UserModel{
+		Username: buyConversations[chatID].state.answers[0],
+		Email:    buyConversations[chatID].state.answers[1],
+	}
+
+	paymentService := PaymentService{}
+	invoice, err := paymentService.CreateInvoice(user)
+	if err != nil {
+		return tgbotapi.MessageConfig{}, err
+	}
+
 	res = tgbotapi.NewMessage(chatID, consts.PROCEED_PAYMENT_MESSAGE)
+	res.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.InlineKeyboardButton{
+				Text:         consts.PROCEED_PAYMENT_KEYBOARD,
+				Pay:          true,
+				URL:          &invoice.PayUrl,
+				CallbackData: &consts.PROCEED_PAYMENT_KEYBOARD,
+			},
+		),
+	)
 
 	return res, nil
 }
