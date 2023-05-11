@@ -91,7 +91,11 @@ func (h *MessageHandler) HandleMessage(bot *tgbotapi.BotAPI, update tgbotapi.Upd
 	if update.CallbackQuery != nil {
 		callback := tgbotapi.NewCallback(update.CallbackQuery.ID, update.CallbackQuery.Data)
 		if _, err := bot.Request(callback); err != nil {
-			return err
+			return &consts.CustomError{
+				Message: consts.BOT_HANDLE_CALLBACKQUERY_ERROR.Message,
+				Code:    consts.BOT_HANDLE_CALLBACKQUERY_ERROR.Code,
+				Detail:  err.Error(),
+			}
 		}
 
 		res, err = h.handleCallbackQuery(update)
@@ -101,7 +105,11 @@ func (h *MessageHandler) HandleMessage(bot *tgbotapi.BotAPI, update tgbotapi.Upd
 	}
 
 	if _, err := bot.Send(res); err != nil {
-		return err
+		return &consts.CustomError{
+			Message: consts.BOT_SEND_ERROR.Message,
+			Code:    consts.BOT_SEND_ERROR.Code,
+			Detail:  err.Error(),
+		}
 	}
 
 	return nil
