@@ -139,9 +139,9 @@ func (s *BuyService) ProceedPayment(update tgbotapi.Update) (tgbotapi.MessageCon
 	return res, nil
 }
 
-func (s *BuyService) ProceedAfterPayment(user models.UserModel) (tgbotapi.MessageConfig, error) {
-	var res tgbotapi.MessageConfig
-	res = tgbotapi.NewMessage(user.ChatID, consts.PROCEED_AFTER_PAYMENT_MESSAGE)
+func (s *BuyService) ProceedAfterPayment(user models.UserModel) ([]tgbotapi.MessageConfig, error) {
+	var res []tgbotapi.MessageConfig
+	res = append(res, tgbotapi.NewMessage(user.ChatID, consts.PROCEED_AFTER_PAYMENT_MESSAGE))
 	return res, nil
 }
 

@@ -72,7 +72,7 @@ func (wh *PaymentWebhooks) CryptoBotWebhook(ctx *gin.Context) {
 		FuckedUser: fuckedUser,
 	}
 
-	msg, err := wh.buyService.ProceedAfterPayment(user)
+	messages, err := wh.buyService.ProceedAfterPayment(user)
 	if err != nil {
 		if e, ok := err.(*consts.CustomError); ok {
 			ctx.JSON(e.Code, gin.H{
@@ -83,7 +83,9 @@ func (wh *PaymentWebhooks) CryptoBotWebhook(ctx *gin.Context) {
 		return
 	}
 
-	if _, err := wh.Bot.Send(msg); err != nil {
-		log.Println(err.Error())
+	for _, msg := range messages {
+		if _, err := wh.Bot.Send(msg); err != nil {
+			log.Println(err.Error())
+		}
 	}
 }
