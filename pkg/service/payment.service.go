@@ -8,6 +8,7 @@ import (
 	"github.com/arthurshafikov/cryptobot-sdk-golang/cryptobot"
 
 	"github.com/harleywinston/x-bot/pkg/consts"
+	"github.com/harleywinston/x-bot/pkg/models"
 )
 
 type PaymentService struct{}
@@ -41,7 +42,7 @@ func (p *PaymentService) InitPaymentClient() error {
 	return nil
 }
 
-func (p *PaymentService) CreateInvoice() (*cryptobot.Invoice, error) {
+func (p *PaymentService) CreateInvoice(user models.UserModel) (*cryptobot.Invoice, error) {
 	envPrice := os.Getenv("PRICE")
 	invoice, err := paymentClient.CreateInvoice(cryptobot.CreateInvoiceRequest{
 		Asset: cryptobot.USDT,
@@ -51,11 +52,11 @@ func (p *PaymentService) CreateInvoice() (*cryptobot.Invoice, error) {
 			}
 			return envPrice
 		}(),
-		Description:    fmt.Sprintf(consts.PAYMENT_DESCRIPTION_MESSAGE, "oijai", "oiajsdofij"),
-		HiddenMessage:  fmt.Sprintf(consts.PAYMENT_SUCCESS_MESSAGE, "oijai", "oijasoifjsa"),
+		Description:    fmt.Sprintf(consts.PAYMENT_DESCRIPTION_MESSAGE, user.Email, user.Username),
+		HiddenMessage:  fmt.Sprintf(consts.PAYMENT_SUCCESS_MESSAGE, user.Email, user.Username),
 		PaidBtnName:    "",
 		PaidBtnUrl:     "",
-		Payload:        "",
+		Payload:        fmt.Sprintf("email: %s, username: %s", user.Email, user.Username),
 		AllowComments:  true,
 		AllowAnonymous: false,
 		ExpiresIn:      60 * 10,

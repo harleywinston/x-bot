@@ -108,7 +108,7 @@ func (s *BuyService) ProceedPayment(update tgbotapi.Update) (tgbotapi.MessageCon
 	var res tgbotapi.MessageConfig
 	chatID := update.CallbackQuery.Message.Chat.ID
 
-	res = tgbotapi.NewMessage(chatID, "proceed payment")
+	res = tgbotapi.NewMessage(chatID, consts.PROCEED_PAYMENT_MESSAGE)
 
 	return res, nil
 }
