@@ -48,7 +48,7 @@ func setupWebhook() {
 	paymentWebhooks := webhook.PaymentWebhooks{Bot: bot}
 	r.POST(os.Getenv("WEBHOOK_URL_PATH"), paymentWebhooks.CryptoBotWebhook)
 
-	if err := r.Run(":3000"); err != nil {
+	if err := r.Run(":3005"); err != nil {
 		log.Fatal(err.Error())
 	}
 }
