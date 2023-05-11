@@ -157,30 +157,61 @@ func (s *BuyService) ProceedAfterPayment(user models.UserModel) ([]tgbotapi.Mess
 			Detail:  err.Error(),
 		}
 	}
-	req, err := http.NewRequest(http.MethodPost, baseURL+"/user", bytes.NewBuffer(jsonBody))
-	if err != nil {
-		return []tgbotapi.MessageConfig{}, &consts.CustomError{
-			Message: consts.CREATE_HTTP_REQ_ERROR.Message,
-			Code:    consts.CREATE_HTTP_REQ_ERROR.Code,
-			Detail:  err.Error(),
+	{
+		req, err := http.NewRequest(http.MethodPost, baseURL+"/user", bytes.NewBuffer(jsonBody))
+		if err != nil {
+			return []tgbotapi.MessageConfig{}, &consts.CustomError{
+				Message: consts.CREATE_HTTP_REQ_ERROR.Message,
+				Code:    consts.CREATE_HTTP_REQ_ERROR.Code,
+				Detail:  err.Error(),
+			}
 		}
-	}
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := HTTPClient.Do(req)
-	if err != nil {
-		return []tgbotapi.MessageConfig{}, &consts.CustomError{
-			Message: consts.CREATE_HTTP_REQ_ERROR.Message,
-			Code:    consts.CREATE_HTTP_REQ_ERROR.Code,
-			Detail:  err.Error(),
+		req.Header.Set("Content-Type", "application/json")
+		resp, err := HTTPClient.Do(req)
+		if err != nil {
+			return []tgbotapi.MessageConfig{}, &consts.CustomError{
+				Message: consts.CREATE_HTTP_REQ_ERROR.Message,
+				Code:    consts.CREATE_HTTP_REQ_ERROR.Code,
+				Detail:  err.Error(),
+			}
 		}
-	}
 
-	if resp.StatusCode != 200 {
-		return []tgbotapi.MessageConfig{}, &consts.CustomError{
-			Message: consts.MASTER_CREATE_USER_ERROR.Message,
-			Code:    consts.MASTER_CREATE_USER_ERROR.Code,
-			Detail:  err.Error(),
+		if resp.StatusCode != 200 {
+			return []tgbotapi.MessageConfig{}, &consts.CustomError{
+				Message: consts.MASTER_CREATE_USER_ERROR.Message,
+				Code:    consts.MASTER_CREATE_USER_ERROR.Code,
+				Detail:  err.Error(),
+			}
 		}
+	}
+	{
+		req, err := http.NewRequest(http.MethodGet, baseURL+"/sub", bytes.NewBuffer(jsonBody))
+		if err != nil {
+			return []tgbotapi.MessageConfig{}, &consts.CustomError{
+				Message: consts.CREATE_HTTP_REQ_ERROR.Message,
+				Code:    consts.CREATE_HTTP_REQ_ERROR.Code,
+				Detail:  err.Error(),
+			}
+		}
+		req.Header.Set("Content-Type", "application/json")
+		resp, err := HTTPClient.Do(req)
+		if err != nil {
+			return []tgbotapi.MessageConfig{}, &consts.CustomError{
+				Message: consts.CREATE_HTTP_REQ_ERROR.Message,
+				Code:    consts.CREATE_HTTP_REQ_ERROR.Code,
+				Detail:  err.Error(),
+			}
+		}
+		if resp.StatusCode != 200 {
+			return []tgbotapi.MessageConfig{}, &consts.CustomError{
+				Message: consts.MASTER_CREATE_USER_ERROR.Message,
+				Code:    consts.MASTER_CREATE_USER_ERROR.Code,
+				Detail:  err.Error(),
+			}
+		}
+
+		// err = json.NewDecoder(resp.Body).Decode()
+		res = append(res, tgbotapi.NewMessage(user.ChatID, consts.LAST_MESSAGE_AFTER_BUY))
 	}
 	return res, nil
 }
