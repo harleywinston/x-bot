@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -38,4 +39,34 @@ func (p *PaymentService) InitPaymentClient() error {
 	)
 
 	return nil
+}
+
+func (p *PaymentService) CreateInvoice() (*cryptobot.Invoice, error) {
+	envPrice := os.Getenv("PRICE")
+	invoice, err := paymentClient.CreateInvoice(cryptobot.CreateInvoiceRequest{
+		Asset: cryptobot.USDT,
+		Amount: func() string {
+			if envPrice == "" {
+				return "2"
+			}
+			return envPrice
+		}(),
+		Description:    fmt.Sprintf(consts.PAYMENT_DESCRIPTION_MESSAGE, "oijai", "oiajsdofij"),
+		HiddenMessage:  fmt.Sprintf(consts.PAYMENT_SUCCESS_MESSAGE, "oijai", "oijasoifjsa"),
+		PaidBtnName:    "",
+		PaidBtnUrl:     "",
+		Payload:        "",
+		AllowComments:  true,
+		AllowAnonymous: false,
+		ExpiresIn:      60 * 10,
+	})
+	if err != nil {
+		return &cryptobot.Invoice{}, &consts.CustomError{
+			Message: consts.CRYPTO_BOT_CREATE_INVOICE_ERROR.Message,
+			Code:    consts.CRYPTO_BOT_CREATE_INVOICE_ERROR.Code,
+			Detail:  err.Error(),
+		}
+	}
+
+	return invoice, nil
 }

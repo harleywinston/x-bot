@@ -27,4 +27,8 @@ var (
 	CONFIRM_BUY_CONVERSATION_KEYBOARD = "confirm"
 	EDIT_BUY_CONVERSATION_KEYBOARD    = "edit"
 	EDIT_BUY_CONVERSATIN_MESSAGE      = "edit conversation"
+
+	PROCEED_PAYMENT_MESSAGE     = "pay!"
+	PAYMENT_DESCRIPTION_MESSAGE = "paying for email %s with username %s"
+	PAYMENT_SUCCESS_MESSAGE     = "you payed for email %s with username %s"
 )

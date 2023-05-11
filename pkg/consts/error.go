@@ -19,4 +19,9 @@ var (
 		Message: "Crypto bot api didn't connect properly!",
 		Code:    500,
 	}
+	CRYPTO_BOT_CREATE_INVOICE_ERROR = &CustomError{Message: "Couldn't create invoice!", Code: 500}
+	STRING_PARSE_FLOAT_ERROR        = &CustomError{
+		Message: "Couldn't parse string to float!",
+		Code:    500,
+	}
 )
