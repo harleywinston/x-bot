@@ -113,6 +113,7 @@ func (s *BuyService) ProceedPayment(update tgbotapi.Update) (tgbotapi.MessageCon
 		return tgbotapi.MessageConfig{}, consts.BUY_IS_NOT_STARTED_ERROR
 	}
 	user := models.UserModel{
+		ChatID:   chatID,
 		Username: buyConversations[chatID].state.answers[0],
 		Email:    buyConversations[chatID].state.answers[1],
 	}
@@ -138,10 +139,9 @@ func (s *BuyService) ProceedPayment(update tgbotapi.Update) (tgbotapi.MessageCon
 	return res, nil
 }
 
-func (s *BuyService) ProceedAfterPayment(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
+func (s *BuyService) ProceedAfterPayment(user models.UserModel) (tgbotapi.MessageConfig, error) {
 	var res tgbotapi.MessageConfig
-	chatID := update.CallbackQuery.Message.Chat.ID
-	res = tgbotapi.NewMessage(chatID, consts.PROCEED_AFTER_PAYMENT_MESSAGE)
+	res = tgbotapi.NewMessage(user.ChatID, consts.PROCEED_AFTER_PAYMENT_MESSAGE)
 	return res, nil
 }
 

@@ -52,11 +52,17 @@ func (p *PaymentService) CreateInvoice(user models.UserModel) (*cryptobot.Invoic
 			}
 			return envPrice
 		}(),
-		Description:    fmt.Sprintf(consts.PAYMENT_DESCRIPTION_MESSAGE, user.Email, user.Username),
-		HiddenMessage:  fmt.Sprintf(consts.PAYMENT_SUCCESS_MESSAGE, user.Email, user.Username),
-		PaidBtnName:    "callback",
-		PaidBtnUrl:     "https://t.me/fish_proxy_bot",
-		Payload:        fmt.Sprintf("email: %s, username: %s", user.Email, user.Username),
+		Description:   fmt.Sprintf(consts.PAYMENT_DESCRIPTION_MESSAGE, user.Email, user.Username),
+		HiddenMessage: fmt.Sprintf(consts.PAYMENT_SUCCESS_MESSAGE, user.Email, user.Username),
+		PaidBtnName:   "callback",
+		PaidBtnUrl:    "https://t.me/fish_proxy_bot",
+		Payload: fmt.Sprintf(
+			"%d, %s, %s, %v",
+			user.ChatID,
+			user.Email,
+			user.Username,
+			user.FuckedUser,
+		),
 		AllowComments:  true,
 		AllowAnonymous: false,
 		ExpiresIn:      60 * 10,
