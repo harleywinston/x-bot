@@ -29,4 +29,7 @@ var (
 		Message: "Couldn't parse string to float!",
 		Code:    500,
 	}
+	URL_PARSE_ERROR = &CustomError{Message: "URL parse error!", Code: 500}
+
+	BOT_WEBHOOK_SETUP_ERROR = &CustomError{Message: "Failed to set webhook!", Code: 500}
 )
