@@ -1,7 +1,11 @@
 package service
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"net/http"
+	"os"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
@@ -142,6 +146,42 @@ func (s *BuyService) ProceedPayment(update tgbotapi.Update) (tgbotapi.MessageCon
 func (s *BuyService) ProceedAfterPayment(user models.UserModel) ([]tgbotapi.MessageConfig, error) {
 	var res []tgbotapi.MessageConfig
 	res = append(res, tgbotapi.NewMessage(user.ChatID, consts.PROCEED_AFTER_PAYMENT_MESSAGE))
+
+	HTTPClient := &http.Client{}
+	baseURL := os.Getenv("MASTER_URL")
+	jsonBody, err := json.Marshal(user)
+	if err != nil {
+		return []tgbotapi.MessageConfig{}, &consts.CustomError{
+			Message: consts.BIND_JSON_ERROR.Message,
+			Code:    consts.BIND_JSON_ERROR.Code,
+			Detail:  err.Error(),
+		}
+	}
+	req, err := http.NewRequest(http.MethodPost, baseURL+"/user", bytes.NewBuffer(jsonBody))
+	if err != nil {
+		return []tgbotapi.MessageConfig{}, &consts.CustomError{
+			Message: consts.CREATE_HTTP_REQ_ERROR.Message,
+			Code:    consts.CREATE_HTTP_REQ_ERROR.Code,
+			Detail:  err.Error(),
+		}
+	}
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := HTTPClient.Do(req)
+	if err != nil {
+		return []tgbotapi.MessageConfig{}, &consts.CustomError{
+			Message: consts.CREATE_HTTP_REQ_ERROR.Message,
+			Code:    consts.CREATE_HTTP_REQ_ERROR.Code,
+			Detail:  err.Error(),
+		}
+	}
+
+	if resp.StatusCode != 200 {
+		return []tgbotapi.MessageConfig{}, &consts.CustomError{
+			Message: consts.MASTER_CREATE_USER_ERROR.Message,
+			Code:    consts.MASTER_CREATE_USER_ERROR.Code,
+			Detail:  err.Error(),
+		}
+	}
 	return res, nil
 }
 

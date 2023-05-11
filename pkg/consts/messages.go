@@ -33,4 +33,6 @@ var (
 	PAYMENT_DESCRIPTION_MESSAGE   = "paying for email %s with username %s"
 	PAYMENT_SUCCESS_MESSAGE       = "you payed for email %s with username %s"
 	PROCEED_AFTER_PAYMENT_MESSAGE = "you bought!"
+
+	INTERNAL_ERROR_CONTACT_SUPPORT_MESSGE = "something bad happened please contact @support"
 )

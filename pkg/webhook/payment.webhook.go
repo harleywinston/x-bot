@@ -74,11 +74,13 @@ func (wh *PaymentWebhooks) CryptoBotWebhook(ctx *gin.Context) {
 
 	messages, err := wh.buyService.ProceedAfterPayment(user)
 	if err != nil {
-		if e, ok := err.(*consts.CustomError); ok {
-			ctx.JSON(e.Code, gin.H{
-				"message": e.Message,
-				"detail":  e.Detail,
-			})
+		msg1 := tgbotapi.NewMessage(user.ChatID, err.Error())
+		msg2 := tgbotapi.NewMessage(user.ChatID, consts.INTERNAL_ERROR_CONTACT_SUPPORT_MESSGE)
+		if _, err := wh.Bot.Send(msg1); err != nil {
+			log.Println(err.Error())
+		}
+		if _, err := wh.Bot.Send(msg2); err != nil {
+			log.Println(err.Error())
 		}
 		return
 	}

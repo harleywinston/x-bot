@@ -32,4 +32,7 @@ var (
 	URL_PARSE_ERROR    = &CustomError{Message: "URL parse error!", Code: 500}
 	PARSE_STRING_ERROR = &CustomError{Message: "Parse sting error!", Code: 500}
 	BIND_JSON_ERROR    = &CustomError{Message: "Bind json error!", Code: 500}
+
+	CREATE_HTTP_REQ_ERROR    = &CustomError{Message: "Create http request error!", Code: 500}
+	MASTER_CREATE_USER_ERROR = &CustomError{Message: "Create user on master error!", Code: 500}
 )
