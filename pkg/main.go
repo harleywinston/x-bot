@@ -65,7 +65,11 @@ func (h *MessageHandler) handleCallbackQuery(
 			return tgbotapi.MessageConfig{}, err
 		}
 	default:
-		return tgbotapi.MessageConfig{}, consts.UPDATE_MESSAGE_ERROR
+		return tgbotapi.MessageConfig{}, &consts.CustomError{
+			Message: consts.UPDATE_MESSAGE_ERROR.Message,
+			Code:    consts.UPDATE_MESSAGE_ERROR.Code,
+			Detail:  update.CallbackQuery.Data,
+		}
 	}
 	return res, nil
 }

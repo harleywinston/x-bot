@@ -138,6 +138,13 @@ func (s *BuyService) ProceedPayment(update tgbotapi.Update) (tgbotapi.MessageCon
 	return res, nil
 }
 
+func (s *BuyService) ProceedAfterPayment(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
+	var res tgbotapi.MessageConfig
+	chatID := update.CallbackQuery.Message.Chat.ID
+	res = tgbotapi.NewMessage(chatID, consts.PROCEED_AFTER_PAYMENT_MESSAGE)
+	return res, nil
+}
+
 func (s *BuyService) EditBuyConversation(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
 	var res tgbotapi.MessageConfig
 	var err error
