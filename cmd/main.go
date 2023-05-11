@@ -9,9 +9,15 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 	"github.com/harleywinston/x-bot/pkg"
+	"github.com/harleywinston/x-bot/pkg/service"
 )
 
 func main() {
+	paymentService := service.PaymentService{}
+	if err := paymentService.InitPaymentClient(); err != nil {
+		log.Fatal(err)
+	}
+
 	proxyURL, err := url.Parse(os.Getenv("PROXY_URL"))
 	if err != nil {
 		log.Fatal(err.Error())

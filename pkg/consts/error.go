@@ -15,4 +15,8 @@ func (e *CustomError) Error() string {
 var (
 	UPDATE_MESSAGE_ERROR     = &CustomError{Message: "Message is invalid!", Code: 500}
 	BUY_IS_NOT_STARTED_ERROR = &CustomError{Message: "Buy didn't start.", Code: 500}
+	CRYPTO_BOT_CRASH_ERROR   = &CustomError{
+		Message: "Crypto bot api didn't connect properly!",
+		Code:    500,
+	}
 )
