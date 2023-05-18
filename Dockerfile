@@ -6,4 +6,4 @@ COPY ./ .
 
 RUN go build -buildvcs=false -o ./build/x-bot ./cmd
 
-CMD [ "./build/x-bot" ]
+CMD ["./build/x-bot"]
