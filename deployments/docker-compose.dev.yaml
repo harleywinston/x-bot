@@ -9,10 +9,11 @@ services:
       - "./.dev.env"
     volumes:
       - "/home/harley/go/src/github.com/harleywinston/x-bot:/go/src/github/harleywinston/x-bot"
-    networks:
-      - x
+    network_mode: host
+    # networks:
+    #   - x
 
-networks:
-  x:
-    name: x
-    external: true
+    # networks:
+    #   x:
+    #     name: x
+    #     external: true
