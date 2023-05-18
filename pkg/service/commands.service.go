@@ -8,14 +8,16 @@ import (
 
 type CommandHandlers struct{}
 
-func (h *CommandHandlers) HandleHelp(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
-	res := tgbotapi.NewMessage(update.Message.Chat.ID, consts.HELP_COMMAND_MESSAGE)
+func (h *CommandHandlers) HandleHelp(update tgbotapi.Update) ([]tgbotapi.MessageConfig, error) {
+	var res []tgbotapi.MessageConfig
+	res = append(res, tgbotapi.NewMessage(update.Message.Chat.ID, consts.HELP_COMMAND_MESSAGE))
 	return res, nil
 }
 
-func (h *CommandHandlers) HandleBuy(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
-	res := tgbotapi.NewMessage(update.Message.Chat.ID, consts.BUY_COMMAND_MESSAGE)
-	res.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
+func (h *CommandHandlers) HandleBuy(update tgbotapi.Update) ([]tgbotapi.MessageConfig, error) {
+	var res []tgbotapi.MessageConfig
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, consts.BUY_COMMAND_MESSAGE)
+	msg.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData(
 				consts.START_BUY_KEYBOARD,
@@ -29,10 +31,13 @@ func (h *CommandHandlers) HandleBuy(update tgbotapi.Update) (tgbotapi.MessageCon
 			),
 		),
 	)
+	res = append(res, msg)
+
 	return res, nil
 }
 
-func (h *CommandHandlers) HandleStatus(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
-	res := tgbotapi.NewMessage(update.Message.Chat.ID, consts.STATUS_COMMAND_MESSAGE)
+func (h *CommandHandlers) HandleStatus(update tgbotapi.Update) ([]tgbotapi.MessageConfig, error) {
+	var res []tgbotapi.MessageConfig
+	res = append(res, tgbotapi.NewMessage(update.Message.Chat.ID, consts.STATUS_COMMAND_MESSAGE))
 	return res, nil
 }

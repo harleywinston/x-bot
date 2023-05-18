@@ -1,11 +1,16 @@
 package service
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"net/http"
+	"os"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 	"github.com/harleywinston/x-bot/pkg/consts"
+	"github.com/harleywinston/x-bot/pkg/models"
 )
 
 type BuyService struct{}
@@ -22,14 +27,15 @@ type buyConversation struct {
 
 var buyConversations = make(map[int64]buyConversation)
 
-func (s *BuyService) confirmConversation(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
+func (s *BuyService) confirmConversation(update tgbotapi.Update) ([]tgbotapi.MessageConfig, error) {
+	var res []tgbotapi.MessageConfig
 	chatID := update.Message.Chat.ID
 	if _, exists := buyConversations[chatID]; !exists {
-		return tgbotapi.MessageConfig{}, consts.BUY_IS_NOT_STARTED_ERROR
+		return []tgbotapi.MessageConfig{}, consts.BUY_IS_NOT_STARTED_ERROR
 	}
 	conversation := buyConversations[chatID]
 
-	res := tgbotapi.NewMessage(
+	msg := tgbotapi.NewMessage(
 		chatID,
 		fmt.Sprintf(
 			consts.CONFIRM_BUY_CONVERSATION_MESSAGE,
@@ -37,8 +43,7 @@ func (s *BuyService) confirmConversation(update tgbotapi.Update) (tgbotapi.Messa
 			conversation.state.answers[1],
 		),
 	)
-
-	res.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
+	msg.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData(
 				consts.CONFIRM_BUY_CONVERSATION_KEYBOARD,
@@ -52,16 +57,19 @@ func (s *BuyService) confirmConversation(update tgbotapi.Update) (tgbotapi.Messa
 			),
 		),
 	)
+	res = append(res, msg)
 
 	return res, nil
 }
 
-func (s *BuyService) HandleBuyConversation(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
+func (s *BuyService) HandleBuyConversation(
+	update tgbotapi.Update,
+) ([]tgbotapi.MessageConfig, error) {
 	chatID := update.Message.Chat.ID
-	var res tgbotapi.MessageConfig
+	var res []tgbotapi.MessageConfig
 	var err error
 	if _, exists := buyConversations[chatID]; !exists {
-		return tgbotapi.MessageConfig{}, consts.BUY_IS_NOT_STARTED_ERROR
+		return []tgbotapi.MessageConfig{}, consts.BUY_IS_NOT_STARTED_ERROR
 	}
 
 	conversation := buyConversations[chatID]
@@ -72,18 +80,19 @@ func (s *BuyService) HandleBuyConversation(update tgbotapi.Update) (tgbotapi.Mes
 	if len(conversation.questsions) < conversation.state.currentQuestion+1 {
 		res, err = s.confirmConversation(update)
 		if err != nil {
-			return tgbotapi.MessageConfig{}, err
+			return []tgbotapi.MessageConfig{}, err
 		}
 	} else {
-		res = tgbotapi.NewMessage(chatID, conversation.questsions[conversation.state.currentQuestion])
+		res = append(res, tgbotapi.NewMessage(chatID, conversation.questsions[conversation.state.currentQuestion]))
 	}
 
 	return res, nil
 }
 
-func (s *BuyService) StartBuy(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
+func (s *BuyService) StartBuy(update tgbotapi.Update) ([]tgbotapi.MessageConfig, error) {
+	var res []tgbotapi.MessageConfig
 	chatID := update.CallbackQuery.Message.Chat.ID
-	res := tgbotapi.NewMessage(chatID, consts.START_BUY_MESSAGE)
+	res = append(res, tgbotapi.NewMessage(chatID, consts.START_BUY_MESSAGE))
 	buyConversations[chatID] = buyConversation{
 		questsions: []string{
 			consts.BUY_CONVERSATION_USERNAME_MESSAGE,
@@ -97,37 +106,152 @@ func (s *BuyService) StartBuy(update tgbotapi.Update) (tgbotapi.MessageConfig, e
 	return res, nil
 }
 
-func (s *BuyService) CancelBuy(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
+func (s *BuyService) CancelBuy(update tgbotapi.Update) ([]tgbotapi.MessageConfig, error) {
+	var res []tgbotapi.MessageConfig
 	chatID := update.CallbackQuery.Message.Chat.ID
-	res := tgbotapi.NewMessage(chatID, consts.CANCEL_BUY_MESSAGE)
+	res = append(res, tgbotapi.NewMessage(chatID, consts.CANCEL_BUY_MESSAGE))
 	delete(buyConversations, chatID)
 	return res, nil
 }
 
-func (s *BuyService) ProceedPayment(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
-	var res tgbotapi.MessageConfig
+func (s *BuyService) ProceedPayment(update tgbotapi.Update) ([]tgbotapi.MessageConfig, error) {
+	var res []tgbotapi.MessageConfig
 	chatID := update.CallbackQuery.Message.Chat.ID
 
-	res = tgbotapi.NewMessage(chatID, "proceed payment")
+	if _, exists := buyConversations[chatID]; !exists {
+		return []tgbotapi.MessageConfig{}, consts.BUY_IS_NOT_STARTED_ERROR
+	}
+	user := models.UserModel{
+		ChatID:   chatID,
+		Username: buyConversations[chatID].state.answers[0],
+		Email:    buyConversations[chatID].state.answers[1],
+	}
+
+	paymentService := PaymentService{}
+	invoice, err := paymentService.CreateInvoice(user)
+	if err != nil {
+		return []tgbotapi.MessageConfig{}, err
+	}
+
+	msg := tgbotapi.NewMessage(chatID, consts.PROCEED_PAYMENT_MESSAGE)
+	msg.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.InlineKeyboardButton{
+				Text:         consts.PROCEED_PAYMENT_KEYBOARD,
+				Pay:          true,
+				URL:          &invoice.PayUrl,
+				CallbackData: &consts.PROCEED_PAYMENT_KEYBOARD,
+			},
+		),
+	)
+	res = append(res, msg)
 
 	return res, nil
 }
 
-func (s *BuyService) EditBuyConversation(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
-	var res tgbotapi.MessageConfig
+func (s *BuyService) ProceedAfterPayment(user models.UserModel) ([]tgbotapi.MessageConfig, error) {
+	var res []tgbotapi.MessageConfig
+	res = append(res, tgbotapi.NewMessage(user.ChatID, consts.PROCEED_AFTER_PAYMENT_MESSAGE))
+
+	HTTPClient := &http.Client{}
+	baseURL := os.Getenv("MASTER_URL")
+	jsonBody, err := json.Marshal(user)
+	if err != nil {
+		return []tgbotapi.MessageConfig{}, &consts.CustomError{
+			Message: consts.BIND_JSON_ERROR.Message,
+			Code:    consts.BIND_JSON_ERROR.Code,
+			Detail:  err.Error(),
+		}
+	}
+	req, err := http.NewRequest(http.MethodPost, baseURL+"/user", bytes.NewBuffer(jsonBody))
+	if err != nil {
+		return []tgbotapi.MessageConfig{}, &consts.CustomError{
+			Message: consts.CREATE_HTTP_REQ_ERROR.Message,
+			Code:    consts.CREATE_HTTP_REQ_ERROR.Code,
+			Detail:  err.Error(),
+		}
+	}
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := HTTPClient.Do(req)
+	if err != nil {
+		return []tgbotapi.MessageConfig{}, &consts.CustomError{
+			Message: consts.CREATE_HTTP_REQ_ERROR.Message,
+			Code:    consts.CREATE_HTTP_REQ_ERROR.Code,
+			Detail:  err.Error(),
+		}
+	}
+
+	if resp.StatusCode != 200 {
+		var jsonData struct {
+			Message string `json:"message"`
+			Detail  string `json:"detail"`
+		}
+		err = json.NewDecoder(resp.Body).Decode(&jsonData)
+		if err != nil {
+			return []tgbotapi.MessageConfig{}, &consts.CustomError{
+				Message: consts.BIND_JSON_ERROR.Message,
+				Code:    consts.BIND_JSON_ERROR.Code,
+				Detail:  err.Error(),
+			}
+		}
+		return []tgbotapi.MessageConfig{}, &consts.CustomError{
+			Message: consts.MASTER_CREATE_USER_ERROR.Message,
+			Code:    consts.MASTER_CREATE_USER_ERROR.Code,
+			Detail:  fmt.Sprintf("%s\n%s", jsonData.Message, jsonData.Detail),
+		}
+	}
+	// req, err := http.NewRequest(http.MethodGet, baseURL+"/sub", bytes.NewBuffer(jsonBody))
+	// if err != nil {
+	// 	return []tgbotapi.MessageConfig{}, &consts.CustomError{
+	// 		Message: consts.CREATE_HTTP_REQ_ERROR.Message,
+	// 		Code:    consts.CREATE_HTTP_REQ_ERROR.Code,
+	// 		Detail:  err.Error(),
+	// 	}
+	// }
+	// req.Header.Set("Content-Type", "application/json")
+	// resp, err := HTTPClient.Do(req)
+	// if err != nil {
+	// 	return []tgbotapi.MessageConfig{}, &consts.CustomError{
+	// 		Message: consts.CREATE_HTTP_REQ_ERROR.Message,
+	// 		Code:    consts.CREATE_HTTP_REQ_ERROR.Code,
+	// 		Detail:  err.Error(),
+	// 	}
+	// }
+	// if resp.StatusCode != 200 {
+	// 	return []tgbotapi.MessageConfig{}, &consts.CustomError{
+	// 		Message: consts.MASTER_CREATE_USER_ERROR.Message,
+	// 		Code:    consts.MASTER_CREATE_USER_ERROR.Code,
+	// 		Detail:  err.Error(),
+	// 	}
+	// }
+	//
+	// err = json.NewDecoder(resp.Body).Decode()
+	res = append(res, tgbotapi.NewMessage(user.ChatID, consts.LAST_MESSAGE_AFTER_BUY))
+	res = append(
+		res,
+		tgbotapi.NewMessage(
+			user.ChatID,
+			fmt.Sprintf("https://harleywinston.pythonanywhere.com/client/%s", user.Email),
+		),
+	)
+	return res, nil
+}
+
+func (s *BuyService) EditBuyConversation(update tgbotapi.Update) ([]tgbotapi.MessageConfig, error) {
+	var res []tgbotapi.MessageConfig
 	var err error
 	chatID := update.CallbackQuery.Message.Chat.ID
 
 	_, err = s.CancelBuy(update)
 	if err != nil {
-		return tgbotapi.MessageConfig{}, err
+		return []tgbotapi.MessageConfig{}, err
 	}
 	_, err = s.StartBuy(update)
 	if err != nil {
-		return tgbotapi.MessageConfig{}, err
+		return []tgbotapi.MessageConfig{}, err
 	}
 
-	res = tgbotapi.NewMessage(chatID, consts.EDIT_BUY_CONVERSATIN_MESSAGE)
+	res = append(res, tgbotapi.NewMessage(chatID, consts.EDIT_BUY_CONVERSATIN_MESSAGE))
 
 	return res, nil
 }
