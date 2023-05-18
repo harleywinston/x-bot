@@ -105,6 +105,8 @@ func (wh *PaymentWebhooks) CryptoBotWebhook(ctx *gin.Context) {
 		log.Println("Unsupported webhook type" + update.UpdateType)
 	}
 
+	ctx.JSON(200, nil)
+
 	for _, msg := range messages {
 		if _, err := wh.Bot.Send(msg); err != nil {
 			log.Println(err.Error())
