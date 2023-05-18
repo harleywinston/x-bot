@@ -23,6 +23,7 @@ type PaymentWebhooks struct {
 func (wh *PaymentWebhooks) CryptoBotWebhook(ctx *gin.Context) {
 	body, err := io.ReadAll(ctx.Request.Body)
 	if err != nil {
+		log.Println(err.Error())
 		ctx.JSON(consts.BIND_JSON_ERROR.Code, gin.H{
 			"message": consts.BIND_JSON_ERROR.Message,
 			"detail":  err.Error(),
@@ -31,6 +32,7 @@ func (wh *PaymentWebhooks) CryptoBotWebhook(ctx *gin.Context) {
 	}
 	update, err := cryptobot.ParseWebhookUpdate(body)
 	if err != nil {
+		log.Println(err.Error())
 		ctx.JSON(consts.BIND_JSON_ERROR.Code, gin.H{
 			"message": consts.BIND_JSON_ERROR.Message,
 			"detail":  err.Error(),
@@ -40,6 +42,7 @@ func (wh *PaymentWebhooks) CryptoBotWebhook(ctx *gin.Context) {
 
 	payload, ok := update.Payload.(string)
 	if !ok {
+		log.Println("Type assertion error!")
 		ctx.JSON(consts.BIND_JSON_ERROR.Code, gin.H{
 			"message": consts.BIND_JSON_ERROR.Message,
 			"detail":  "Type assertion error!",
@@ -48,6 +51,7 @@ func (wh *PaymentWebhooks) CryptoBotWebhook(ctx *gin.Context) {
 	}
 	payloadData := strings.Split(strings.ReplaceAll(payload, " ", ""), "|")
 	if len(payloadData) < 4 {
+		log.Println("payload len")
 		ctx.JSON(consts.CRYPTO_BOT_PAYLOAD_ERROR.Code, gin.H{
 			"message": consts.CRYPTO_BOT_PAYLOAD_ERROR.Message,
 			"detail":  "payload data len is less than 4!",
@@ -55,6 +59,7 @@ func (wh *PaymentWebhooks) CryptoBotWebhook(ctx *gin.Context) {
 	}
 	chatID, err := strconv.ParseInt(payloadData[0], 10, 64)
 	if err != nil {
+		log.Println("invalid chat id")
 		ctx.JSON(consts.PARSE_STRING_ERROR.Code, gin.H{
 			"message": consts.PARSE_STRING_ERROR.Message,
 			"detail":  err.Error(),
@@ -65,6 +70,7 @@ func (wh *PaymentWebhooks) CryptoBotWebhook(ctx *gin.Context) {
 	username := payloadData[2]
 	fuckedUser, err := strconv.ParseBool(payloadData[3])
 	if err != nil {
+		log.Println(err.Error())
 		ctx.JSON(consts.PARSE_STRING_ERROR.Code, gin.H{
 			"message": consts.PARSE_STRING_ERROR.Message,
 			"detail":  err.Error(),
@@ -80,6 +86,7 @@ func (wh *PaymentWebhooks) CryptoBotWebhook(ctx *gin.Context) {
 
 	messages, err := wh.buyService.ProceedAfterPayment(user)
 	if err != nil {
+		log.Println(err.Error())
 		msg1 := tgbotapi.NewMessage(user.ChatID, err.Error())
 		msg2 := tgbotapi.NewMessage(user.ChatID, consts.INTERNAL_ERROR_CONTACT_SUPPORT_MESSGE)
 		if _, err := wh.Bot.Send(msg1); err != nil {
