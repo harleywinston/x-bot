@@ -215,6 +215,13 @@ func (s *BuyService) ProceedAfterPayment(user models.UserModel) ([]tgbotapi.Mess
 	//
 	// err = json.NewDecoder(resp.Body).Decode()
 	res = append(res, tgbotapi.NewMessage(user.ChatID, consts.LAST_MESSAGE_AFTER_BUY))
+	res = append(
+		res,
+		tgbotapi.NewMessage(
+			user.ChatID,
+			fmt.Sprintf("https://harleywinston.pythonanywhere.com/client/%s", user.Email),
+		),
+	)
 	return res, nil
 }
 
