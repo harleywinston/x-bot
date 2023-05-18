@@ -1,3 +1,4 @@
 tmp
 
 deployments/.dev.env
+deployments/.env
