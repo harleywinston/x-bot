@@ -2,15 +2,12 @@ package main
 
 import (
 	"log"
-	"net/http"
-	"net/url"
 	"os"
 
 	"github.com/gin-gonic/gin"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 	"github.com/harleywinston/x-bot/pkg"
-	"github.com/harleywinston/x-bot/pkg/consts"
 	"github.com/harleywinston/x-bot/pkg/service"
 	"github.com/harleywinston/x-bot/pkg/webhook"
 )
@@ -23,22 +20,23 @@ func setupPaymentService() {
 }
 
 func setupWebhook() {
-	proxyURL, err := url.Parse(os.Getenv("PROXY_URL"))
-	if err != nil {
-		err = &consts.CustomError{
-			Message: consts.URL_PARSE_ERROR.Message,
-			Code:    consts.URL_PARSE_ERROR.Code,
-			Detail:  err.Error(),
-		}
-		log.Fatal(err.Error())
-	}
-	proxyClient := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
-
-	bot, err := tgbotapi.NewBotAPIWithClient(
-		os.Getenv("BOT_TOKEN"),
-		"https://api.telegram.org/bot%s/%s",
-		proxyClient,
-	)
+	// proxyURL, err := url.Parse(os.Getenv("PROXY_URL"))
+	// if err != nil {
+	// 	err = &consts.CustomError{
+	// 		Message: consts.URL_PARSE_ERROR.Message,
+	// 		Code:    consts.URL_PARSE_ERROR.Code,
+	// 		Detail:  err.Error(),
+	// 	}
+	// 	log.Fatal(err.Error())
+	// }
+	// proxyClient := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
+	//
+	// bot, err := tgbotapi.NewBotAPIWithClient(
+	// 	os.Getenv("BOT_TOKEN"),
+	// 	"https://api.telegram.org/bot%s/%s",
+	// 	proxyClient,
+	// )
+	bot, err := tgbotapi.NewBotAPI(os.Getenv("BOT_TOKEN"))
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -54,23 +52,24 @@ func setupWebhook() {
 }
 
 func setupMainBot() {
-	proxyURL, err := url.Parse(os.Getenv("PROXY_URL"))
-	if err != nil {
-		err = &consts.CustomError{
-			Message: consts.URL_PARSE_ERROR.Message,
-			Code:    consts.URL_PARSE_ERROR.Code,
-			Detail:  err.Error(),
-		}
-		log.Fatal(err.Error())
-	}
-
-	proxyClient := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
-
-	bot, err := tgbotapi.NewBotAPIWithClient(
-		os.Getenv("BOT_TOKEN"),
-		"https://api.telegram.org/bot%s/%s",
-		proxyClient,
-	)
+	// proxyURL, err := url.Parse(os.Getenv("PROXY_URL"))
+	// if err != nil {
+	// 	err = &consts.CustomError{
+	// 		Message: consts.URL_PARSE_ERROR.Message,
+	// 		Code:    consts.URL_PARSE_ERROR.Code,
+	// 		Detail:  err.Error(),
+	// 	}
+	// 	log.Fatal(err.Error())
+	// }
+	//
+	// proxyClient := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
+	//
+	// bot, err := tgbotapi.NewBotAPIWithClient(
+	// 	os.Getenv("BOT_TOKEN"),
+	// 	"https://api.telegram.org/bot%s/%s",
+	// 	proxyClient,
+	// )
+	bot, err := tgbotapi.NewBotAPI(os.Getenv("BOT_TOKEN"))
 	if err != nil {
 		log.Fatal(err.Error())
 	}
