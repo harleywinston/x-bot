@@ -1,0 +1,10 @@
+version: '3'
+services:
+  bot:
+    image: "harleywinston/x-bot:0.1"
+    container_name: x-bot
+    restart: always
+    working_dir: "/go/src/github/harleywinston/x-bot"
+    env_file:
+      - "./.env"
+    network_mode: host
