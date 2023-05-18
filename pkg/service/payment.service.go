@@ -57,7 +57,7 @@ func (p *PaymentService) CreateInvoice(user models.UserModel) (*cryptobot.Invoic
 		PaidBtnName:   "callback",
 		PaidBtnUrl:    "https://t.me/fish_proxy_bot",
 		Payload: fmt.Sprintf(
-			"%d, %s, %s, %v",
+			"%d|%s|%s|%v",
 			user.ChatID,
 			user.Email,
 			user.Username,

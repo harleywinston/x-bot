@@ -29,9 +29,10 @@ var (
 		Message: "Couldn't parse string to float!",
 		Code:    500,
 	}
-	URL_PARSE_ERROR    = &CustomError{Message: "URL parse error!", Code: 500}
-	PARSE_STRING_ERROR = &CustomError{Message: "Parse sting error!", Code: 500}
-	BIND_JSON_ERROR    = &CustomError{Message: "Bind json error!", Code: 500}
+	URL_PARSE_ERROR          = &CustomError{Message: "URL parse error!", Code: 500}
+	PARSE_STRING_ERROR       = &CustomError{Message: "Parse sting error!", Code: 500}
+	BIND_JSON_ERROR          = &CustomError{Message: "Bind json error!", Code: 500}
+	CRYPTO_BOT_PAYLOAD_ERROR = &CustomError{Message: "Payload data is not valid!", Code: 502}
 
 	CREATE_HTTP_REQ_ERROR    = &CustomError{Message: "Create http request error!", Code: 500}
 	MASTER_CREATE_USER_ERROR = &CustomError{Message: "Create user on master error!", Code: 500}

@@ -46,7 +46,13 @@ func (wh *PaymentWebhooks) CryptoBotWebhook(ctx *gin.Context) {
 		})
 		return
 	}
-	payloadData := strings.Split(strings.ReplaceAll(payload, " ", ""), ",")
+	payloadData := strings.Split(strings.ReplaceAll(payload, " ", ""), "|")
+	if len(payloadData) < 4 {
+		ctx.JSON(consts.CRYPTO_BOT_PAYLOAD_ERROR.Code, gin.H{
+			"message": consts.CRYPTO_BOT_PAYLOAD_ERROR.Message,
+			"detail":  "payload data len is less than 4!",
+		})
+	}
 	chatID, err := strconv.ParseInt(payloadData[0], 10, 64)
 	if err != nil {
 		ctx.JSON(consts.PARSE_STRING_ERROR.Code, gin.H{
