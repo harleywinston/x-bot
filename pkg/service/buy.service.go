@@ -182,10 +182,22 @@ func (s *BuyService) ProceedAfterPayment(user models.UserModel) ([]tgbotapi.Mess
 	}
 
 	if resp.StatusCode != 200 {
+		var jsonData struct {
+			Message string `json:"message"`
+			Detail  string `json:"detail"`
+		}
+		err = json.NewDecoder(resp.Body).Decode(&jsonData)
+		if err != nil {
+			return []tgbotapi.MessageConfig{}, &consts.CustomError{
+				Message: consts.BIND_JSON_ERROR.Message,
+				Code:    consts.BIND_JSON_ERROR.Code,
+				Detail:  err.Error(),
+			}
+		}
 		return []tgbotapi.MessageConfig{}, &consts.CustomError{
 			Message: consts.MASTER_CREATE_USER_ERROR.Message,
 			Code:    consts.MASTER_CREATE_USER_ERROR.Code,
-			Detail:  err.Error(),
+			Detail:  fmt.Sprintf("%s\n%s", jsonData.Message, jsonData.Detail),
 		}
 	}
 	// req, err := http.NewRequest(http.MethodGet, baseURL+"/sub", bytes.NewBuffer(jsonBody))

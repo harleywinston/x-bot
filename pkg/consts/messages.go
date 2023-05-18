@@ -4,6 +4,7 @@ var (
 	HELP_COMMAND    = "help"
 	BUY_COMMAND     = "buy"
 	STATUS_COMMAND  = "status"
+	START_COMMAND   = "start"
 	DEFAULT_COMMAND = "unkown"
 
 	HELP_COMMAND_MESSAGE    = "help command"

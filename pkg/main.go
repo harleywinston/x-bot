@@ -16,6 +16,18 @@ func (h *MessageHandler) handleCommands(update tgbotapi.Update) ([]tgbotapi.Mess
 	var res []tgbotapi.MessageConfig
 	var err error
 	switch update.Message.Command() {
+	// case consts.START_COMMAND:
+	// 	res, err = h.buyService.ProceedAfterPayment(
+	// 		models.UserModel{
+	// 			ChatID:     update.Message.Chat.ID,
+	// 			Email:      "test_from_bot@proton.me",
+	// 			Username:   "test_from_bot",
+	// 			FuckedUser: true,
+	// 		},
+	// 	)
+	// 	if err != nil {
+	// 		return []tgbotapi.MessageConfig{}, err
+	// 	}
 	case consts.HELP_COMMAND:
 		res, err = h.commands.HandleHelp(update)
 		if err != nil {
