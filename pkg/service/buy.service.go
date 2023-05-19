@@ -231,7 +231,7 @@ func (s *BuyService) ProceedAfterPayment(user models.UserModel) ([]tgbotapi.Mess
 		res,
 		tgbotapi.NewMessage(
 			user.ChatID,
-			fmt.Sprintf("https://harleywinston.pythonanywhere.com/client/%s", user.Email),
+			fmt.Sprintf("%s/sub/%s", os.Getenv("MASTER_URL"), user.Email),
 		),
 	)
 	return res, nil
